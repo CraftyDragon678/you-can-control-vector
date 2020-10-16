@@ -52,13 +52,13 @@ function draw(t) {
 
   if (fps) {
     control(fps);
-    main();
+    speed();
   }
 
   window.requestAnimationFrame(draw);
 }
 
-function main() {
+function speed() {
   /** @type {CanvasRenderingContext2D} */
   const ctx = speedCanvas.getContext("2d");
   const width = 500;
