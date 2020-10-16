@@ -3,10 +3,12 @@ const speedCanvas = document.getElementById("speed-canvas");
 const controlCanvas = document.getElementById("control-canvas");
 
 const moveData = {
+  ddx: 0,
+  ddy: 0,
   dx: 0,
   dy: 0,
-  x: 250,
-  y: 250,
+  x: 0,
+  y: 0,
   isMoving: false,
   prevMouseX: null,
   prevMouseY: null,
@@ -23,8 +25,8 @@ function init() {
   });
   controlCanvas.addEventListener('mousemove', (e) => {
     if (moveData.isMoving) {
-      moveData.dx += e.clientX - moveData.prevMouseX;
-      moveData.dy += e.clientY - moveData.prevMouseY;
+      moveData.ddx += e.clientX - moveData.prevMouseX;
+      moveData.ddy += e.clientY - moveData.prevMouseY;
 
       moveData.prevMouseX = e.clientX;
       moveData.prevMouseY = e.clientY;
@@ -38,10 +40,12 @@ function init() {
   });
 
   document.getElementById("reset-button").addEventListener('click', () => {
+    moveData.ddx = 0;
+    moveData.ddy = 0;
     moveData.dx = 0;
     moveData.dy = 0;
-    moveData.x = 250;
-    moveData.y = 250;
+    moveData.x = 0;
+    moveData.y = 0;
   });
 }
 
@@ -80,7 +84,7 @@ function speed() {
   }
 
   ctx.beginPath();
-  ctx.arc(moveData.x, moveData.y, 10, 0, 2 * Math.PI);
+  ctx.arc(moveData.dx + width / 2, moveData.dy + height / 2, 10, 0, 2 * Math.PI);
   ctx.fill();
 }
 
@@ -107,11 +111,11 @@ function control(fps) {
   }
 
   ctx.beginPath();
-  ctx.arc(moveData.dx + width / 2, moveData.dy + width / 2, 5, 0, 2 * Math.PI);
+  ctx.arc(moveData.ddx + width / 2, moveData.ddy + width / 2, 5, 0, 2 * Math.PI);
   ctx.fill();
 
-  moveData.x += moveData.dx / fps;
-  moveData.y += moveData.dy / fps;
+  moveData.dx += moveData.ddx / fps;
+  moveData.dy += moveData.ddy / fps;
 }
 
 init();
