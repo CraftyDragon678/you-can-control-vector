@@ -85,7 +85,7 @@ function main() {
   }
 
   ctx.beginPath();
-  ctx.arc(moveData.x + width / 2, moveData.y + height / 2, 6, 0, 2 * Math.PI);
+  ctx.arc(moveData.x * 0.6 + width / 2, moveData.y * 0.6 + height / 2, 6, 0, 2 * Math.PI);
   ctx.fill();
 }
 
