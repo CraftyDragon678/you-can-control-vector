@@ -33,6 +33,9 @@ function init() {
   controlCanvas.addEventListener('mouseup', (e) => {
     moveData.isMoving = false;
   });
+  controlCanvas.addEventListener('mouseleave', (e) => {
+    moveData.isMoving = false;
+  });
 
   document.getElementById("reset-button").addEventListener('click', () => {
     moveData.dx = 0;
