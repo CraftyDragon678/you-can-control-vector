@@ -118,14 +118,18 @@ function speed() {
 function control(fps) {
   /** @type {CanvasRenderingContext2D} */
   const ctx = controlCanvas.getContext("2d");
-  const width = 200;
-  const height = 200;
+  const width = 500;
+  const height = 500;
 
 
   ctx.clearRect(0, 0, width, height);
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 8;
   ctx.strokeRect(0, 0, width, height);
 
-  for (const x of [...Array(3)].map((_, i) => i * 50 + 50)) {
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "black";
+  for (const x of [...Array(9)].map((_, i) => i * 50 + 50)) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, height);
