@@ -57,9 +57,36 @@ function draw(t) {
   if (fps) {
     control(fps);
     speed();
+    main();
   }
 
   window.requestAnimationFrame(draw);
+}
+
+function main() {
+  /** @type {CanvasRenderingContext2D} */
+  const ctx = mainCanvas.getContext("2d");
+  const width = 500;
+  const height = 500;
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.strokeRect(0, 0, width, height);
+
+  for (const x of [...Array(17)].map((_, i) => i * 30 + 10)) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, x);
+    ctx.lineTo(width, x);
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.arc(moveData.x + width / 2, moveData.y + height / 2, 6, 0, 2 * Math.PI);
+  ctx.fill();
 }
 
 function speed() {
@@ -116,6 +143,9 @@ function control(fps) {
 
   moveData.dx += moveData.ddx / fps;
   moveData.dy += moveData.ddy / fps;
+
+  moveData.x += moveData.dx / fps;
+  moveData.y += moveData.dy / fps;
 }
 
 init();
