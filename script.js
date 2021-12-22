@@ -1,6 +1,6 @@
-const mainCanvas = document.getElementById("main-canvas");
-const speedCanvas = document.getElementById("speed-canvas");
-const controlCanvas = document.getElementById("control-canvas");
+const mainCanvas = document.getElementById('main-canvas');
+const speedCanvas = document.getElementById('speed-canvas');
+const controlCanvas = document.getElementById('control-canvas');
 
 const moveData = {
   ddx: 0,
@@ -39,7 +39,7 @@ function init() {
     moveData.isMoving = false;
   });
 
-  document.getElementById("reset-button").addEventListener('click', () => {
+  document.getElementById('reset-button').addEventListener('click', () => {
     moveData.ddx = 0;
     moveData.ddy = 0;
     moveData.dx = 0;
@@ -52,7 +52,6 @@ function init() {
 function draw(t) {
   const fps = 1000 / (t - previousFrame);
   previousFrame = t;
-  console.log(fps);
 
   if (fps) {
     control(fps);
@@ -63,16 +62,25 @@ function draw(t) {
   window.requestAnimationFrame(draw);
 }
 
-function main() {
-  /** @type {CanvasRenderingContext2D} */
-  const ctx = mainCanvas.getContext("2d");
-  const width = 500;
-  const height = 500;
+const width = 500;
+const height = 500;
 
+/**
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} spacing
+ * @returns
+ */
+function initCanvas(ctx, spacing) {
+  ctx.save();
   ctx.clearRect(0, 0, width, height);
   ctx.strokeRect(0, 0, width, height);
 
-  for (const x of [...Array(17)].map((_, i) => i * 30 + 10)) {
+  const multiple = spacing / 50;
+  const count = Math.ceil(Math.max(width, height) / spacing);
+  const bias = width / 2 - spacing * Math.floor(count / 2);
+
+  for (const x of [...Array(count)].map((_, i) => i * spacing + bias)) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, height);
@@ -84,65 +92,61 @@ function main() {
     ctx.stroke();
   }
 
+  ctx.restore();
+
+  return multiple;
+}
+
+function main() {
+  /** @type {CanvasRenderingContext2D} */
+  const ctx = mainCanvas.getContext('2d');
+  const multiple = initCanvas(ctx, 30);
+
   ctx.beginPath();
-  ctx.arc(moveData.x * 0.6 + width / 2, moveData.y * 0.6 + height / 2, 6, 0, 2 * Math.PI);
+  ctx.arc(
+    moveData.x * multiple + width / 2,
+    moveData.y * multiple + height / 2,
+    6,
+    0,
+    2 * Math.PI,
+  );
   ctx.fill();
 }
 
 function speed() {
   /** @type {CanvasRenderingContext2D} */
-  const ctx = speedCanvas.getContext("2d");
-  const width = 500;
-  const height = 500;
-
-  ctx.clearRect(0, 0, width, height);
-  ctx.strokeRect(0, 0, width, height);
-
-  for (const x of [...Array(9)].map((_, i) => i * 50 + 50)) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, x);
-    ctx.lineTo(width, x);
-    ctx.stroke();
-  }
+  const ctx = speedCanvas.getContext('2d');
+  const multiple = initCanvas(ctx, 50);
 
   ctx.beginPath();
-  ctx.arc(moveData.dx + width / 2, moveData.dy + height / 2, 10, 0, 2 * Math.PI);
+  ctx.arc(
+    moveData.dx * multiple + width / 2,
+    moveData.dy * multiple + height / 2,
+    10,
+    0,
+    2 * Math.PI,
+  );
   ctx.fill();
 }
 
 function control(fps) {
   /** @type {CanvasRenderingContext2D} */
-  const ctx = controlCanvas.getContext("2d");
-  const width = 500;
-  const height = 500;
+  const ctx = controlCanvas.getContext('2d');
+  const multiple = initCanvas(ctx, 50);
 
-
-  ctx.clearRect(0, 0, width, height);
-  ctx.strokeStyle = "red";
+  ctx.save();
+  ctx.strokeStyle = 'red';
   ctx.lineWidth = 8;
   ctx.strokeRect(0, 0, width, height);
 
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = "black";
-  for (const x of [...Array(9)].map((_, i) => i * 50 + 50)) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, x);
-    ctx.lineTo(width, x);
-    ctx.stroke();
-  }
-
   ctx.beginPath();
-  ctx.arc(moveData.ddx + width / 2, moveData.ddy + width / 2, 5, 0, 2 * Math.PI);
+  ctx.arc(
+    moveData.ddx * multiple + width / 2,
+    moveData.ddy * multiple + width / 2,
+    5,
+    0,
+    2 * Math.PI,
+  );
   ctx.fill();
 
   moveData.dx += moveData.ddx / fps;
@@ -150,6 +154,8 @@ function control(fps) {
 
   moveData.x += moveData.dx / fps;
   moveData.y += moveData.dy / fps;
+
+  ctx.restore();
 }
 
 init();
