@@ -1,6 +1,8 @@
 const mainCanvas = document.getElementById('main-canvas');
 const speedCanvas = document.getElementById('speed-canvas');
 const controlCanvas = document.getElementById('control-canvas');
+/** @type {HTMLSelectElement} */
+const select = document.getElementsByName('control')[0];
 
 const moveData = {
   ddx: 0,
@@ -12,12 +14,19 @@ const moveData = {
   isMoving: false,
   prevMouseX: null,
   prevMouseY: null,
+  currentOption: null,
 };
 
 let previousFrame = null;
 
 function init() {
   draw();
+  select.value = 'acceleration';
+
+  select.addEventListener('change', (event) => {
+    console.log(moveData.currentOption);
+    moveData.currentOption = event.target.value;
+  });
   controlCanvas.addEventListener('mousedown', (e) => {
     moveData.isMoving = true;
     moveData.prevMouseX = e.clientX;
