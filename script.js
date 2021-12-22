@@ -21,10 +21,9 @@ let previousFrame = null;
 
 function init() {
   draw();
-  select.value = 'acceleration';
+  moveData.currentOption = select.value = 'acceleration';
 
   select.addEventListener('change', (event) => {
-    console.log(moveData.currentOption);
     moveData.currentOption = event.target.value;
   });
   controlCanvas.addEventListener('mousedown', (e) => {
@@ -34,8 +33,20 @@ function init() {
   });
   controlCanvas.addEventListener('mousemove', (e) => {
     if (moveData.isMoving) {
-      moveData.ddx += e.clientX - moveData.prevMouseX;
-      moveData.ddy += e.clientY - moveData.prevMouseY;
+      switch (moveData.currentOption) {
+        case 'position':
+          moveData.x += e.clientX - moveData.prevMouseX;
+          moveData.y += e.clientY - moveData.prevMouseY;
+          break;
+        case 'speed':
+          moveData.dx += e.clientX - moveData.prevMouseX;
+          moveData.dy += e.clientY - moveData.prevMouseY;
+          break;
+        case 'acceleration':
+          moveData.ddx += e.clientX - moveData.prevMouseX;
+          moveData.ddy += e.clientY - moveData.prevMouseY;
+          break;
+      }
 
       moveData.prevMouseX = e.clientX;
       moveData.prevMouseY = e.clientY;
@@ -106,20 +117,35 @@ function initCanvas(ctx, spacing) {
   return multiple;
 }
 
-function main() {
-  /** @type {CanvasRenderingContext2D} */
-  const ctx = mainCanvas.getContext('2d');
-  const multiple = initCanvas(ctx, 30);
-
+function drawCircle(ctx, x, y, multiple, radius) {
   ctx.beginPath();
   ctx.arc(
-    moveData.x * multiple + width / 2,
-    moveData.y * multiple + height / 2,
-    6,
+    x * multiple + width / 2,
+    y * multiple + height / 2,
+    radius,
     0,
     2 * Math.PI,
   );
   ctx.fill();
+}
+
+function main() {
+  /** @type {CanvasRenderingContext2D} */
+  const ctx = mainCanvas.getContext('2d');
+  const multiple = initCanvas(
+    ctx,
+    moveData.currentOption !== 'position' ? 30 : 50,
+  );
+
+  switch (moveData.currentOption) {
+    case 'position':
+      drawCircle(ctx, moveData.dx, moveData.dy, multiple, 6);
+      break;
+    case 'speed':
+    case 'acceleration':
+      drawCircle(ctx, moveData.x, moveData.y, multiple, 6);
+      break;
+  }
 }
 
 function speed() {
@@ -128,13 +154,15 @@ function speed() {
   const multiple = initCanvas(ctx, 50);
 
   ctx.beginPath();
-  ctx.arc(
-    moveData.dx * multiple + width / 2,
-    moveData.dy * multiple + height / 2,
-    10,
-    0,
-    2 * Math.PI,
-  );
+  switch (moveData.currentOption) {
+    case 'position':
+    case 'speed':
+      drawCircle(ctx, moveData.ddx, moveData.ddy, multiple, 10);
+      break;
+    case 'acceleration':
+      drawCircle(ctx, moveData.dx, moveData.dy, multiple, 10);
+      break;
+  }
   ctx.fill();
 }
 
@@ -149,22 +177,46 @@ function control(fps) {
   ctx.strokeRect(0, 0, width, height);
 
   ctx.beginPath();
-  ctx.arc(
-    moveData.ddx * multiple + width / 2,
-    moveData.ddy * multiple + width / 2,
-    5,
-    0,
-    2 * Math.PI,
-  );
+  switch (moveData.currentOption) {
+    case 'position':
+      ctx.arc(
+        moveData.x * multiple + width / 2,
+        moveData.y * multiple + width / 2,
+        5,
+        0,
+        2 * Math.PI,
+      );
+      break;
+    case 'speed':
+      ctx.arc(
+        moveData.dx * multiple + width / 2,
+        moveData.dy * multiple + width / 2,
+        5,
+        0,
+        2 * Math.PI,
+      );
+      break;
+    case 'acceleration':
+      ctx.arc(
+        moveData.ddx * multiple + width / 2,
+        moveData.ddy * multiple + width / 2,
+        5,
+        0,
+        2 * Math.PI,
+      );
+      break;
+  }
   ctx.fill();
 
-  // 가속도 변화량 / fps == 속도 변화량
-  moveData.dx += moveData.ddx / fps;
-  moveData.dy += moveData.ddy / fps;
+  // 가속도 / fps == 속도 변화량
+  // moveData.dx += moveData.ddx / fps;
+  // moveData.dy += moveData.ddy / fps;
 
-  // 속도 변화량 / fps == 위치 변화량
-  moveData.x += moveData.dx / fps;
-  moveData.y += moveData.dy / fps;
+  // 속도 / fps == 위치 변화량
+  // moveData.x += moveData.dx / fps;
+  // moveData.y += moveData.dy / fps;
+
+  // 가속도 == 속도 변화량 / fps
 
   ctx.restore();
 }
