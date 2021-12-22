@@ -11,6 +11,8 @@ const moveData = {
   dy: 0,
   x: 0,
   y: 0,
+  moveX: 0,
+  moveY: 0,
   isMoving: false,
   prevMouseX: null,
   prevMouseY: null,
@@ -33,18 +35,20 @@ function init() {
   });
   controlCanvas.addEventListener('mousemove', (e) => {
     if (moveData.isMoving) {
+      moveData.moveX = e.clientX - moveData.prevMouseX;
+      moveData.moveY = e.clientY - moveData.prevMouseY;
       switch (moveData.currentOption) {
         case 'position':
-          moveData.x += e.clientX - moveData.prevMouseX;
-          moveData.y += e.clientY - moveData.prevMouseY;
+          moveData.x += moveData.moveX;
+          moveData.y += moveData.moveY;
           break;
         case 'speed':
-          moveData.dx += e.clientX - moveData.prevMouseX;
-          moveData.dy += e.clientY - moveData.prevMouseY;
+          moveData.dx += moveData.moveX;
+          moveData.dy += moveData.moveY;
           break;
         case 'acceleration':
-          moveData.ddx += e.clientX - moveData.prevMouseX;
-          moveData.ddy += e.clientY - moveData.prevMouseY;
+          moveData.ddx += moveData.moveX;
+          moveData.ddy += moveData.moveY;
           break;
       }
 
@@ -169,7 +173,10 @@ function speed() {
 function control(fps) {
   /** @type {CanvasRenderingContext2D} */
   const ctx = controlCanvas.getContext('2d');
-  const multiple = initCanvas(ctx, 50);
+  const multiple = initCanvas(
+    ctx,
+    moveData.currentOption !== 'position' ? 50 : 30,
+  );
 
   ctx.save();
   ctx.strokeStyle = 'red';
@@ -179,44 +186,34 @@ function control(fps) {
   ctx.beginPath();
   switch (moveData.currentOption) {
     case 'position':
-      ctx.arc(
-        moveData.x * multiple + width / 2,
-        moveData.y * multiple + width / 2,
-        5,
-        0,
-        2 * Math.PI,
-      );
+      drawCircle(ctx, moveData.x, moveData.y, multiple, 5);
       break;
     case 'speed':
-      ctx.arc(
-        moveData.dx * multiple + width / 2,
-        moveData.dy * multiple + width / 2,
-        5,
-        0,
-        2 * Math.PI,
-      );
+      drawCircle(ctx, moveData.dx, moveData.dy, multiple, 5);
+
+      if (moveData.isMoving) {
+        console.log(fps);
+        // 가속도 == 속도 변화량 * fps == 속도 변화량 / 시간 변화량
+        moveData.ddx = moveData.moveX * fps;
+        moveData.ddy = moveData.moveY * fps;
+      }
+      // 속도 / fps == 속도 * 시간 == 위치 변화량
+      moveData.x += moveData.dx / fps;
+      moveData.y += moveData.dy / fps;
       break;
     case 'acceleration':
-      ctx.arc(
-        moveData.ddx * multiple + width / 2,
-        moveData.ddy * multiple + width / 2,
-        5,
-        0,
-        2 * Math.PI,
-      );
+      drawCircle(ctx, moveData.ddx, moveData.ddy, multiple, 5);
+
+      // 가속도 / fps == 가속도 * 시간 == 속도 변화량
+      moveData.dx += moveData.ddx / fps;
+      moveData.dy += moveData.ddy / fps;
+
+      // 속도 / fps == 속도 * 시간 == 위치 변화량
+      moveData.x += moveData.dx / fps;
+      moveData.y += moveData.dy / fps;
       break;
   }
   ctx.fill();
-
-  // 가속도 / fps == 속도 변화량
-  // moveData.dx += moveData.ddx / fps;
-  // moveData.dy += moveData.ddy / fps;
-
-  // 속도 / fps == 위치 변화량
-  // moveData.x += moveData.dx / fps;
-  // moveData.y += moveData.dy / fps;
-
-  // 가속도 == 속도 변화량 / fps
 
   ctx.restore();
 }
