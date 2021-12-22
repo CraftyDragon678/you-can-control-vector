@@ -149,9 +149,11 @@ function control(fps) {
   );
   ctx.fill();
 
+  // 가속도 변화량 / fps == 속도 변화량
   moveData.dx += moveData.ddx / fps;
   moveData.dy += moveData.ddy / fps;
 
+  // 속도 변화량 / fps == 위치 변화량
   moveData.x += moveData.dx / fps;
   moveData.y += moveData.dy / fps;
 
