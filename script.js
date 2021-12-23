@@ -137,6 +137,23 @@ function drawCircle(ctx, x, y, multiple, radius) {
   ctx.fill();
 }
 
+/**
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {*} x
+ * @param {*} y
+ * @param {*} text
+ */
+function drawTextCenter(ctx, x, y, text) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 30%)';
+  ctx.font = '50px arial';
+  ctx.textAlign = 'center';
+
+  ctx.fillText(text, x, y + ctx.measureText(text).actualBoundingBoxAscent / 2);
+  ctx.restore();
+}
+
 function main() {
   /** @type {CanvasRenderingContext2D} */
   const ctx = mainCanvas.getContext('2d');
@@ -148,10 +165,12 @@ function main() {
   switch (moveData.currentOption) {
     case 'position':
       drawCircle(ctx, moveData.dx, moveData.dy, multiple, 6);
+      drawTextCenter(ctx, 250, 250, 'speed');
       break;
     case 'speed':
     case 'acceleration':
       drawCircle(ctx, moveData.x, moveData.y, multiple, 6);
+      drawTextCenter(ctx, 250, 250, 'position');
       break;
   }
 }
@@ -159,16 +178,21 @@ function main() {
 function speed() {
   /** @type {CanvasRenderingContext2D} */
   const ctx = speedCanvas.getContext('2d');
-  const multiple = initCanvas(ctx, 50);
+  const multiple = initCanvas(
+    ctx,
+    moveData.currentOption === 'position' ? 10 : 50,
+  );
 
   ctx.beginPath();
   switch (moveData.currentOption) {
     case 'position':
     case 'speed':
       drawCircle(ctx, moveData.ddx, moveData.ddy, multiple, 10);
+      drawTextCenter(ctx, 250, 250, 'acceleration');
       break;
     case 'acceleration':
       drawCircle(ctx, moveData.dx, moveData.dy, multiple, 10);
+      drawTextCenter(ctx, 250, 250, 'speed');
       break;
   }
   ctx.fill();
@@ -200,11 +224,13 @@ function control(fps) {
       const moveY = lerp(moveData.dy, moveData.moveY * fps, 0.5) - moveData.dy;
 
       // 가속도 == 속도 변화량 * fps == 속도 변화량 / 시간 변화량
-      moveData.dx = lerp(moveData.dx, moveData.moveX * fps, 0.2);
-      moveData.dy = lerp(moveData.dy, moveData.moveY * fps, 0.2);
+      moveData.dx = lerp(moveData.dx, moveData.moveX * fps, 0.1);
+      moveData.dy = lerp(moveData.dy, moveData.moveY * fps, 0.1);
 
       moveData.ddx = lerp(moveData.ddx, moveX * fps, 0.5);
       moveData.ddy = lerp(moveData.ddy, moveY * fps, 0.5);
+
+      drawTextCenter(ctx, 250, 250, 'position');
 
       break;
     case 'speed':
@@ -221,6 +247,9 @@ function control(fps) {
       // 속도 / fps == 속도 * 시간 == 위치 변화량
       moveData.x += moveData.dx / fps;
       moveData.y += moveData.dy / fps;
+
+      drawTextCenter(ctx, 250, 250, 'speed');
+
       break;
     case 'acceleration':
       drawCircle(ctx, moveData.ddx, moveData.ddy, multiple, 5);
@@ -232,6 +261,9 @@ function control(fps) {
       // 속도 / fps == 속도 * 시간 == 위치 변화량
       moveData.x += moveData.dx / fps;
       moveData.y += moveData.dy / fps;
+
+      drawTextCenter(ctx, 250, 250, 'acceleration');
+
       break;
   }
   ctx.fill();
