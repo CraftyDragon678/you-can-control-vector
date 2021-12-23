@@ -159,7 +159,7 @@ function main() {
   const ctx = mainCanvas.getContext('2d');
   const multiple = initCanvas(
     ctx,
-    moveData.currentOption !== 'position' ? 30 : 50,
+    moveData.currentOption !== 'position' ? 10 : 50,
   );
 
   switch (moveData.currentOption) {
@@ -219,6 +219,11 @@ function control(fps) {
   switch (moveData.currentOption) {
     case 'position':
       drawCircle(ctx, moveData.x, moveData.y, multiple, 5);
+
+      // moveData.x += 100 / fps;
+      // moveData.y += 100 / fps;
+      // moveData.moveX = 100 / fps;
+      // moveData.moveY = 100 / fps;
 
       const moveX = lerp(moveData.dx, moveData.moveX * fps, 0.5) - moveData.dx;
       const moveY = lerp(moveData.dy, moveData.moveY * fps, 0.5) - moveData.dy;
