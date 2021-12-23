@@ -214,6 +214,10 @@ function control(fps) {
       moveData.ddx = lerp(moveData.ddx, moveData.moveX * fps, 0.5);
       moveData.ddy = lerp(moveData.ddy, moveData.moveY * fps, 0.5);
 
+      // without lerp
+      // moveData.ddx = moveData.moveX * fps;
+      // moveData.ddy = moveData.moveY * fps;
+
       // 속도 / fps == 속도 * 시간 == 위치 변화량
       moveData.x += moveData.dx / fps;
       moveData.y += moveData.dy / fps;
