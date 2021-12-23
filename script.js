@@ -58,9 +58,13 @@ function init() {
   });
   controlCanvas.addEventListener('mouseup', (e) => {
     moveData.isMoving = false;
+    moveData.moveX = 0;
+    moveData.moveY = 0;
   });
   controlCanvas.addEventListener('mouseleave', (e) => {
     moveData.isMoving = false;
+    moveData.moveX = 0;
+    moveData.moveY = 0;
   });
 
   document.getElementById('reset-button').addEventListener('click', () => {
@@ -170,6 +174,10 @@ function speed() {
   ctx.fill();
 }
 
+function lerp(a, b, f) {
+  return a + f * (b - a);
+}
+
 function control(fps) {
   /** @type {CanvasRenderingContext2D} */
   const ctx = controlCanvas.getContext('2d');
@@ -187,16 +195,25 @@ function control(fps) {
   switch (moveData.currentOption) {
     case 'position':
       drawCircle(ctx, moveData.x, moveData.y, multiple, 5);
+
+      const moveX = lerp(moveData.dx, moveData.moveX * fps, 0.5) - moveData.dx;
+      const moveY = lerp(moveData.dy, moveData.moveY * fps, 0.5) - moveData.dy;
+
+      // 가속도 == 속도 변화량 * fps == 속도 변화량 / 시간 변화량
+      moveData.dx = lerp(moveData.dx, moveData.moveX * fps, 0.2);
+      moveData.dy = lerp(moveData.dy, moveData.moveY * fps, 0.2);
+
+      moveData.ddx = lerp(moveData.ddx, moveX * fps, 0.5);
+      moveData.ddy = lerp(moveData.ddy, moveY * fps, 0.5);
+
       break;
     case 'speed':
       drawCircle(ctx, moveData.dx, moveData.dy, multiple, 5);
 
-      if (moveData.isMoving) {
-        console.log(fps);
-        // 가속도 == 속도 변화량 * fps == 속도 변화량 / 시간 변화량
-        moveData.ddx = moveData.moveX * fps;
-        moveData.ddy = moveData.moveY * fps;
-      }
+      // 가속도 == 속도 변화량 * fps == 속도 변화량 / 시간 변화량
+      moveData.ddx = lerp(moveData.ddx, moveData.moveX * fps, 0.5);
+      moveData.ddy = lerp(moveData.ddy, moveData.moveY * fps, 0.5);
+
       // 속도 / fps == 속도 * 시간 == 위치 변화량
       moveData.x += moveData.dx / fps;
       moveData.y += moveData.dy / fps;
